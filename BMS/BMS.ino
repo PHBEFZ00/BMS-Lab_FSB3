@@ -16,6 +16,8 @@ void loop()
 
   float voltage = getCellVoltage(1);
   Serial.println(voltage);
+
+  //test
   
   //setDriveMode(1);           // 1-Cycle Test 2-Slow Driver 3-Fast Driver 4-Power Mode
   //receiveAndParseCommands();   // Empfängt Befehle über den Serial Monitor und führt diese aus
