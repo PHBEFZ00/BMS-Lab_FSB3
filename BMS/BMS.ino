@@ -18,6 +18,7 @@ void loop()
   Serial.println(voltage);
 
   //test123
+  //Änderung
   
   //setDriveMode(1);           // 1-Cycle Test 2-Slow Driver 3-Fast Driver 4-Power Mode
   //receiveAndParseCommands();   // Empfängt Befehle über den Serial Monitor und führt diese aus
