@@ -7,10 +7,10 @@ extern volatile uint32_t pwmDuration;
 
 int gesamtzeit=0;
 
+
 void cell_balancing()
 {
-  static uint32_t zeit; zeit=millis();
-  
+  int zeit=millis();
 
   //static uint32_t oldtimebalancing;
 
@@ -37,6 +37,7 @@ void cell_balancing()
     }
     
     arithmetic_mean=sum/4.0;
+    
     static uint32_t micro; micro=micros();
     
     int i;
@@ -48,9 +49,9 @@ void cell_balancing()
     }
     
     standard_deviation=sqrt(1.0/(4.0-1.0)*summe);
-    Serial.println(standard_deviation);
+    //Serial.print("standard deviation: "); Serial.println(standard_deviation);
     max_differencevoltage=standard_deviation;
-    Serial.print("Standardabweichung: "); Serial.println(micros()-micro);
+    //Serial.print("Standardabweichung: "); Serial.println(micros()-micro);
     
     for (cell=0;cell<4;cell++) //Calculation of all differences to the arithmetic mean value
     {
@@ -65,8 +66,8 @@ void cell_balancing()
         if (difference_mean_cells_before[cell]>=max_differencevoltage)
         {
           setBalancing(cell+1);
-          Serial.println("Cell-Balancing aktiv");
-          Serial.print("SetBalancing-Time: "); Serial.println(millis()-zeit);
+          //Serial.println("Cell-Balancing aktiv");
+          //Serial.print("SetBalancing-Time: "); Serial.println(millis()-zeit);
         }
       }
       else
@@ -78,20 +79,21 @@ void cell_balancing()
           if (difference_mean_cells[k]>=max_differencevoltage)
           {
             setter=false;
-            Serial.println("False");
+            //Serial.println("False");
           }
         }
         if (setter)
         {
           setBalancing(0);
-          Serial.println("Cell-Balancing OFF");
+          //Serial.println("Cell-Balancing OFF");
         }
       }
       difference_mean_cells_before[cell]=difference_mean_cells[cell];
+      //Serial.print("Durchlauf: "); Serial.println(millis()-zeit);
     }
   //}
-  Serial.print("Durchlauf: "); Serial.println(millis()-zeit);
-  gesamtzeit=gesamtzeit+(millis()-zeit); Serial.print("Gesamt: "); Serial.println(gesamtzeit);
+  
+  //gesamtzeit=gesamtzeit+(millis()-zeit); Serial.print("Gesamt: "); Serial.println(gesamtzeit);
 }
 
 void setup() 
@@ -99,7 +101,7 @@ void setup()
   setupBSW();
 }
 
-static uint32_t oldtimebalancing;
+static uint32_t oldtimebalancing=0;
 
 void loop() 
 { 
@@ -108,10 +110,11 @@ void loop()
   receiveAndParseCommands();   // Empfängt Befehle über den Serial Monitor und führt diese aus
 
   {
-    if ((millis()-oldtimebalancing)>400)
+    if ((millis()-oldtimebalancing)>399)
     {
-      cell_balancing();
+      //Serial.print("Laufzeit(400): "); Serial.println(millis()-oldtimebalancing);
       oldtimebalancing=millis();
+      cell_balancing();
     }
   }
   
