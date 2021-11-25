@@ -1,0 +1,313 @@
+// Include necessary libraries
+#include <SPI.h>                // SPI communication library
+#include <Adafruit_ILI9341.h>   // Display library
+#include <TouchScreen.h>        // Display touch functionality
+
+//Konstantendefinition
+#define gV_interval 200         // set getVoltage interval 200ms
+#define display_interval 1000   // set Display interval 1000ms 
+#define check_Interval 400      // set check interval 400ms
+#define overVoltageInterval 800 // set OverVoltageInterval 800ms
+
+// Declare variables
+extern volatile uint32_t pwmDuration;
+
+long gV_prev;        // previous Time getVolage
+long display_prev;   // previous Time display
+long ov_prev;        // previous Time OverVoltage
+long uv_prev;        // previous Time UnderVoltage
+long ct_prev;        // previous Time CellTemperature
+long overVoltageTimeStart;
+
+int state_ov;        // falls Unterscheidung uv / ov gebraucht wird - ACHTUNG EVTL UNNÖTIG
+int state_uv;        // falls Unterscheidung uv / ov gebraucht wird - ACHTUNG EVTL UNNÖTIG
+int state_ot;        // status overTemp of cell no.
+int state_cb;        // status cellBalancing active for cell no.
+
+int j;
+
+
+void setup()
+{
+  setupBSW();
+  gV_prev = millis();       // previous Time set for getVoltage
+  display_prev = millis();  // initialize millis-Timer
+} // end setup
+
+void loop()
+{
+  // Standard settings
+  setBDU_Activation(true);      // turn on BDU
+  setDriveMode(4);              // 1-Cycle Test - 2-Slow Driver - 3-Fast Driver - 4-Power Mode
+  receiveAndParseCommands();    // recieve commands and execute them over serial monitor
+
+  // call Safety Manager every 200ms
+  if ((millis() - gV_prev) >= gV_interval)
+  {
+    SafetyManager();
+  } // end if
+
+  // BMS 12.2 setWarningOverVoltage == false
+  if (millis() - ov_prev > check_Interval && ov_prev > 0)
+  {
+    Check(1);
+  } // end if
+
+  // BMS13.2 setWarningUnderVoltage == false
+  if (millis() - uv_prev > check_Interval && uv_prev > 0)
+  {
+    Check(2);
+  } // end if
+
+  // BMS17.2 setWarningOverTemp == false; setDriveMode(1)
+  if (millis() - ct_prev > check_Interval && ct_prev > 0)
+  {
+    Check(3);
+  } // end if
+
+  // BMS12.1 & BMS13.1 voltage regulation
+  if (state_cb > 0)
+  {
+    Spannungsregelung();
+  } // end if
+
+  if ((millis() - overVoltageTimeStart) > overVoltageInterval && overVoltageTimeStart > 0) //Achtung aktuell NUR FÜR ZELLE 1!!!!!!!!!!
+  {
+    Serial.println(getCellVoltage(1));
+    while (getCellVoltage(1) > 4.2)  //AKTUELL NUR FÜR ZELLE 1
+    {
+      Serial.print(millis() - overVoltageTimeStart);
+      Serial.print("ms");
+      Serial.println("     Warning Overvoltage");
+      Serial.print(millis() - overVoltageTimeStart);
+      Serial.println("Safety Shutdown - BDU State: OFF");
+      setBDU_Activation(false); //Schütze auf bzw. BDU aus
+
+    } // end while
+    overVoltageTimeStart = 0;
+    j = 0;
+  }
+
+  // BMS41 refresh Display every 1000ms
+  if ((millis() - display_prev) >= display_interval)
+  {
+    Display();
+  } // end if
+
+
+} // end loop
+
+//----------------------------------------------------------
+
+// function for Safety Management
+void SafetyManager()
+{
+  float cv_act;     // current cell voltage
+  float ct_act;     // current cell temp
+  float IBat;       // battery current
+  int i;            // index variable
+
+
+  Serial.print(millis() - gV_prev);
+  Serial.print("ms");
+  Serial.println("   Intervall getVoltage"); // time interval 200ms
+
+  gV_prev = millis(); // Timer reset
+
+  for (i = 1; i <= 4; i++)      // cell 1 to 4
+  {
+    //BMS11
+    cv_act = getCellVoltage(i); // read cell voltage
+
+    //BMS14
+    ct_act = getCellTemp(i);    // read cell temp
+
+    // BMS16
+    IBat = getPackCurrent();    // read battery current
+
+    // BMS12
+    if (cv_act > 4.2) // if OverVoltage
+    {
+      state_ov = i; // falls Unterscheidung uv / ov gebraucht wird - ACHTUNG EVTL UNNÖTIG
+      state_cb = i;
+      setWarningOvervoltage(true);        // over voltage warning to VCU
+      Serial.print("Cell No. ");
+      Serial.print(i);
+      Serial.println("   Overvoltage");
+      ov_prev = millis();                 // reset time counter to current time
+      if (j == 0)
+      {
+        overVoltageTimeStart = millis();
+      }
+      j++;
+    } // end if
+
+    // BMS13
+    if (cv_act < 2.5) // if UnderVoltage
+    {
+      state_uv = i; // falls Unterscheidung uv / ov gebraucht wird - ACHTUNG EVTL UNNÖTIG
+      state_cb = i;
+      setWarningUndervoltage(true);       // under voltage warning to VCU
+      Serial.print("Cell No. ");
+      Serial.print(i);
+      Serial.println("   Undervoltage");
+      uv_prev = millis();                 // reset time counter to current time
+    } // end if
+
+    // BMS14 & BMS15 & BMS15.1
+    if (ct_act > 60) // if OverTemp
+    {
+      state_ot = i;
+      setWarningOvertemp(true);           // temperature warning to VCU
+      setDriveMode(2);                    // reduce power
+      Serial.print("Cell No. ");
+      Serial.print(i);
+      Serial.println("   Overtemp");
+    } // end if
+  } // end for
+} // end void
+
+// BMS12.1 & BMS13.1
+void Spannungsregelung()
+{
+  setBalancing(state_cb);                 // cell balancing active at cell no.
+  Serial.print("Cell No. ");
+  Serial.print(state_cb);
+  Serial.println("   CellBalancing active");
+  state_cb = 0;                           // cell balancing inactive
+} // end void
+
+// BMS12.2 & BMS13.2 & BMS15.2
+void Check(int mode)
+{
+  // BMS12.2
+  if (mode == 1)
+  {
+    setWarningOvervoltage(false);
+    setBalancing(false);
+    Serial.print(millis() - ov_prev);
+    Serial.println("   Intervall OV");
+    ov_prev = 0; // Trigger Reset
+  } // end if
+
+  // BMS13.2
+  if (mode == 2)
+  {
+    setWarningUndervoltage(false);
+    setBalancing(false);
+    Serial.print(millis() - uv_prev);
+    Serial.println("   Intervall UV");
+    uv_prev = 0; // Trigger Reset
+  } // end if
+
+  // BMS15.2
+  if (mode == 3)
+  {
+    setWarningOvertemp(false);
+    setDriveMode(1);
+    Serial.print(millis() - ct_prev);
+    Serial.println("   Intervall CT");
+    ct_prev = 0; // Trigger Reset
+  } // end if
+} // end void
+
+void Display()
+{
+  Serial.print(millis() - display_prev);
+  Serial.print("ms");
+  Serial.println("   Intervall Display");
+
+  display_prev = millis();      // Timer Reset
+  showMeasurementValues();      // Stellt Messwerte numerisch dar
+  drawMeasurementCurves(10);  // Messkurven - Parameter defines Minutes for full scale of X-Axis
+  //showOCVcurve();             // Stellt OCV Kurve der Li-Ionen Zellen dar
+} // end void
+
+//----------------------------------------------------------
+//BackUp
+
+/*
+
+  //float cv1 = getCellVoltage(1);
+    //float cv2 = getCellVoltage(2);
+    //float cv3 = getCellVoltage(3);
+    //float cv4 = getCellVoltage(4);
+
+    //float ct1 = getCellTemp(1);
+    //float ct2 = getCellTemp(2);
+    //float ct3 = getCellTemp(3);
+    //float ct4 = getCellTemp(4);
+
+  /*
+      //BMS12
+      if(max(max(max(cv1,cv2),cv3),cv4) > 4.2) //Max kann nur 2
+      {
+      setWarningOvervoltage(true);
+      Serial.println("Overvoltage");
+      }
+
+      //BMS13
+      if(min(min(min(cv1,cv2),cv3),cv4) < 2.5) // Min kann nur 2
+      {
+      setWarningUndervoltage(true);
+      Serial.println("Undervoltage");
+      }
+
+
+      //BMS15
+      if(max(max(max(ct1,ct2),ct3),ct4) >= 60) //Max kann nur 2
+      {
+      setWarningOvertemp(true);
+      Serial.println("Overtemp");
+      }
+      //setWarningOvervoltage(false);
+      //setWarningUndervoltage(false);
+      //setWarningOvertemp(false);
+
+      /*
+    //BMS12.2
+    if (millis() - ov_prev > check_Interval && ov_prev > 0)
+    {
+      setWarningOvervoltage(false);
+      setBalancing(false);
+      Serial.print(millis() - ov_prev);
+      Serial.println("   Intervall OV");
+      ov_prev = 0;
+    }
+
+    // BMS13.2
+    if (millis() - uv_prev > check_Interval && uv_prev > 0)
+    {
+      setWarningUndervoltage(false);
+      setBalancing(false);
+      Serial.print(millis() - uv_prev);
+      Serial.println("   Intervall UV");
+      uv_prev = 0;
+    }
+
+    // BMS17.2
+    if (millis() - ct_prev > check_Interval && ct_prev > 0)
+    {
+      setDriveMode(1);
+      Serial.print(millis() - ct_prev);
+      Serial.println("   Intervall CT");
+      ct_prev = 0;
+    }*/
+/*
+  for (int k = 1; k >= 4; k++)
+  {
+  gOV_prev = millis();
+
+  getCellVoltage(1)
+  }
+  if (getCellVoltage(1) > 4.2)
+  {
+  countOverVoltage++;
+  Serial.print(countOverVoltage);
+  Serial.println("   Stage Overvoltage");
+  if (countOverVoltage == 4) //wenn 4x 200ms verstrichen
+  {
+   Serial.println("Shutdown");
+   setBDU_Activation(false); //Schütze auf bzw. BDU aus
+  } // end if
+  } // end if */
