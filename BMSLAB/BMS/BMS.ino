@@ -317,7 +317,7 @@ void Cell_Balancing(long firsttime)
     } // end calculating all differences to the arithmetic mean value
   
     // start Cell-Balancing
-    for (cell=0;cell<4;cell++)
+    for ( cell=0 ; cell < 4 ; cell++ )
     {
         if ( difference_mean_cells[cell] > max_differencevoltage )
         {
@@ -327,7 +327,9 @@ void Cell_Balancing(long firsttime)
             Serial.print(currenttime_cb);
             Serial.print("    ");
             Serial.print(millis() - currenttime_cb);
-            Serial.println("     ----------Cell-Balancing----------");
+            Serial.println("    -------------------Cell-Balancing-------------------");
+            Serial.println("                stand. deviation | dif.:  c1  |  c2  |  c3  |  c4  |");
+            Serial.print("                      ");Serial.print(standard_deviation);Serial.print("       |       ");Serial.print(difference_mean_cells[0]);Serial.print(" | ");Serial.print(difference_mean_cells[1]);Serial.print(" | ");Serial.print(difference_mean_cells[2]);Serial.print(" | ");Serial.print(difference_mean_cells[3]);Serial.println(" |");
             //Serial.println("Cell-Balancing aktiv");
             //Serial.print("SetBalancing-Time: "); Serial.println(millis()-zeit);
           }
