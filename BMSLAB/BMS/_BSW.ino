@@ -42,13 +42,11 @@ float SOCx[] = {  0, 0.12, 0.18, 0.3, 0.5, 1.00, 1.10, 2.0};
 float SOCy[] = {0.0, 2.50, 3.00, 3.4, 3.7, 4.05, 4.20, 6.9};
 // dU/dV             20.8  8.33  3.3  1.5  0.70  1.50  3.0
 
-//Füllt Screen mit Farbe
 void fillScreen(uint16_t color)
 {
   display.fillScreen(color);                    // fill screen with black
 }
 
-//Zeichnet an Stelle x-y Pixel in col-Farbe
 void drawPixel(uint16_t x, uint16_t y, uint16_t color)
 {
   display.drawPixel(x,y,color);  
@@ -57,25 +55,22 @@ void drawPixel(uint16_t x, uint16_t y, uint16_t color)
 //Testausgabe auf Display
 void writeText(int x, int y, int tSize, String txt, uint16_t color)
 {
-  display.setCursor(x, y); //An Stelle x-y schreiben
-  display.setTextSize(tSize); //Schriftgröße
-  display.setTextColor(color,ILI9341_BLACK); //Textfarbe - Hintergrund schwarz
-  display.print(txt); //Text reinschreiben
+  display.setCursor(x, y);
+  display.setTextSize(tSize);
+  display.setTextColor(color,ILI9341_BLACK);
+  display.print(txt);
 }
 
-//Rechteck an Stelle x-y mit Breite w und Höhe h
 void drawRect(int x, int y, int w, int h, uint16_t color)
 {
   display.drawRect(x, y, w, h, color);
 }
 
-//Rechteck füllen
 void fillRect(int x, int y, int w, int h, uint16_t color)
 {
   display.fillRect(x, y, w, h, color);
 }
 
-//Linie an x0-y0 mit Länge x1 und Breite y1
 void drawLine(int x0, int y0, int x1, int y1, uint16_t color)
 {
   if (y0 == y1)
@@ -84,8 +79,6 @@ void drawLine(int x0, int y0, int x1, int y1, uint16_t color)
     display.drawLine(x0,y0,x1,y1,color);
 }
 
-
-//Rechnet aus RGB Wert die Colour für Arduino aus --> Variable col
 uint16_t rgb565(uint16_t r,uint16_t g,uint16_t b)
 {
   uint16_t col = (r/8)*0x800+(g/4)*0x0020+(b/8);
@@ -110,13 +103,11 @@ String strLen(String strIn, int len)
   return strOut; 
 }
 
-//Minimalwert der 4 Zellen
 float min4(float n1, float n2, float n3, float n4)
 {
   return min(min(min(n1,n2),n3),n4);
 }
 
-//Maxwert der 4 Zellen
 float max4(float n1, float n2, float n3, float n4)
 {
   return max(max(max(n1,n2),n3),n4);
@@ -187,15 +178,14 @@ void setupBSW()
       fillRect(299+i*4,1,4,n,ILI9341_BLACK);   
       fillRect(299+i*4,n,4,239-n,colCell(i));
     }
-    //Arduino lädt Kondensatoren
+    
     if (getCellVoltage(1) < 2.7) {pinMode(pinCell1, OUTPUT); digitalWrite(pinCell1, HIGH);}
     if (getCellVoltage(2) < 2.7) {pinMode(pinCell2, OUTPUT); digitalWrite(pinCell2, HIGH);}
     if (getCellVoltage(3) < 2.7) {pinMode(pinCell3, OUTPUT); digitalWrite(pinCell3, HIGH);}
     if (getCellVoltage(4) < 2.7) {pinMode(pinCell4, OUTPUT); digitalWrite(pinCell4, HIGH);}
-    delay(1000); //1s
-    //Arduiono holt Info über Kondensatorspannung = Zellspannung
+    delay(1000);
     pinMode(pinCell1, INPUT); pinMode(pinCell2, INPUT); pinMode(pinCell3, INPUT); pinMode(pinCell4, INPUT);
-    delay(30); //30ms
+    delay(30);
   }
   Serial.println("BMS started");
   fillScreen(ILI9341_BLACK);
@@ -222,8 +212,8 @@ ISR(TIMER0_COMPA_vect) // called once per ms
   if ((balActive) and pwmActive) // turn off balancing for 100ms every second to give VCU change to measure properly
   {
     if (pwmCell[0] >= 0) {
-      n0 += pwmCell[0]; pinMode(pinCell1, OUTPUT); //Kondensator wird wieder geladen
-      if (n0 >= 1024) { digitalWrite(pinCell1,HIGH); n0 -= 1024; } else digitalWrite(pinCell1,LOW); } //HIGH-Laden, LOW-Nicht laden
+      n0 += pwmCell[0]; pinMode(pinCell1, OUTPUT);
+      if (n0 >= 1024) { digitalWrite(pinCell1,HIGH); n0 -= 1024; } else digitalWrite(pinCell1,LOW); }
     if (pwmCell[1] >= 0) {
       n1 += pwmCell[1]; pinMode(pinCell2, OUTPUT);
       if (n1 >= 1024) { digitalWrite(pinCell2,HIGH); n1 -= 1024; } else digitalWrite(pinCell2,LOW); }
@@ -236,13 +226,13 @@ ISR(TIMER0_COMPA_vect) // called once per ms
   }
   else
   {
-    pinMode(pinCell1, INPUT); //Arduino kann Daten wieder auslesen
+    pinMode(pinCell1, INPUT);
     pinMode(pinCell2, INPUT);
     pinMode(pinCell3, INPUT);
     pinMode(pinCell4, INPUT);
   }
   if (pwmActive) 
-    bitSet(regWarnings, 3); //Setzt Warnings
+    bitSet(regWarnings, 3);
   else
     bitClear(regWarnings, 3); 
   analogWrite(pinWarnings, regWarnings*14+20);  // save a function call
