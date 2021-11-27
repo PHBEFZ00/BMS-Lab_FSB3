@@ -12,12 +12,12 @@ void showMeasurementValues()
   for (i = 1; i <= 4; i++)
   {
     writeText(i*68-52, 4, 1, "Cell "+String(i), ILI9341_WHITE); //name und schriftgröße
-    writeText(i*68-52, 22, 1, strLen(String(getCellVoltage(i),3),6)+"V", colCell(i)); //schriftgröße position und einheit
-    writeText(i*68-52, 40, 1, strLen(String(getCellTemp(i),1),5)+"C", colTemp(i)); //schriftgröße position und einheit
+    writeText(i*68-58, 22, 1, strLen(String(getCellVoltage(i),3),6)+"V", colCell(i)); //schriftgröße position und einheit
+    writeText(i*68-55, 40, 1, strLen(String(getCellTemp(i),1),5)+"C", colTemp(i)); //schriftgröße position und einheit
   }
   // write pack current on screen
-  writeText(280,  4, 1, "I/A",ILI9341_LIGHTGREY); //neuer Name
-  writeText(280, 22, 1, strLen(String(getPackCurrent(),1),6),ILI9341_BLUE); //neue Schriftgröße Position
+  writeText(288,  4, 1, "I/A",ILI9341_LIGHTGREY); //neuer Name
+  writeText(278, 22, 1, strLen(String(getPackCurrent(),1),6),ILI9341_BLUE); //neue Schriftgröße Position
 }
 
 void drawMeasurementCurves(uint16_t fullScreenDuration)
