@@ -11,13 +11,13 @@ void showMeasurementValues()
   // write Cell Voltages on screen
   for (i = 1; i <= 4; i++)
   {
-    writeText(i*68-52, 4, 1, "Cell "+String(i), ILI9341_WHITE); //name und schriftgröße
-    writeText(i*68-52, 22, 1, strLen(String(getCellVoltage(i),3),6)+"V", colCell(i)); //schriftgröße position und einheit
-    writeText(i*68-52, 40, 1, strLen(String(getCellTemp(i),1),5)+"C", colTemp(i)); //schriftgröße position und einheit
+    writeText(i*68-52, 4, 1, "Cell "+String(i), ILI9341_WHITE);                       // new name and font size
+    writeText(i*68-52, 22, 1, strLen(String(getCellVoltage(i),3),6)+"V", colCell(i)); // new font size, position and unit
+    writeText(i*68-52, 40, 1, strLen(String(getCellTemp(i),1),5)+"C", colTemp(i));    // new font size, position and unit
   }
   // write pack current on screen
-  writeText(280,  4, 1, "I/A",ILI9341_LIGHTGREY); //neuer Name
-  writeText(280, 22, 1, strLen(String(getPackCurrent(),1),6),ILI9341_BLUE); //neue Schriftgröße Position
+  writeText(280,  4, 1, "I/A",ILI9341_LIGHTGREY);
+  writeText(280, 22, 1, strLen(String(getPackCurrent(),1),6),ILI9341_BLUE);           // new font size and position
 }
 
 void drawMeasurementCurves(uint16_t fullScreenDuration)
