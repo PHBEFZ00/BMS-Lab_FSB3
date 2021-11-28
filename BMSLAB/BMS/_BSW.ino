@@ -27,7 +27,7 @@
 volatile float    Tcell[4], Vcell[4], Vraw[4], Ibat;
 volatile int16_t  pwmCell[4] = {-1,-1,-1,-1};
 volatile bool     balActive = false; // balancing possibly active but only if needed
-volatile uint32_t pwmDuration = 0;								  
+volatile uint32_t pwmDuration = 0;                  
 
 volatile byte regWarnings = 0;  // Bit 3: Balancing set in ISR
 byte regErrors   = 0;
@@ -52,11 +52,12 @@ void drawPixel(uint16_t x, uint16_t y, uint16_t color)
   display.drawPixel(x,y,color);  
 }
 
+//Testausgabe auf Display
 void writeText(int x, int y, int tSize, String txt, uint16_t color)
 {
-  display.setCursor(x, y);   
+  display.setCursor(x, y);
   display.setTextSize(tSize);
-  display.setTextColor(color,ILI9341_BLACK); // background color black for overwriting
+  display.setTextColor(color,ILI9341_BLACK);
   display.print(txt);
 }
 
@@ -70,7 +71,6 @@ void fillRect(int x, int y, int w, int h, uint16_t color)
   display.fillRect(x, y, w, h, color);
 }
 
-
 void drawLine(int x0, int y0, int x1, int y1, uint16_t color)
 {
   if (y0 == y1)
@@ -78,7 +78,6 @@ void drawLine(int x0, int y0, int x1, int y1, uint16_t color)
   else  
     display.drawLine(x0,y0,x1,y1,color);
 }
-
 
 uint16_t rgb565(uint16_t r,uint16_t g,uint16_t b)
 {
@@ -127,10 +126,11 @@ void setupBSW()
   pinMode(pinCell2, INPUT);
   pinMode(pinCell3, INPUT);
   pinMode(pinCell4, INPUT);
-  
+
+  //Display bei Hochfahren 
   display.begin();                                   // Initialize Display
-  display.setRotation(1);                           // rotate screen content
-  display.fillScreen(ILI9341_BLACK);                    // fill screen with black
+  display.setRotation(1);                            // rotate screen content
+  display.fillScreen(ILI9341_BLACK);                 // fill screen with black
   // HS-Logo
   fillRect(0,0,3,44,ILI9341_WHITE);  
   fillRect(0,0,8,2,ILI9341_WHITE);  
@@ -139,6 +139,12 @@ void setupBSW()
   writeText(41,30,1,"University of Applied Sciences",ILI9341_LIGHTGREY);
   writeText( 30,70,4,"BMS",ILI9341_BLUE);
   writeText(102,70,4,"LAB",ILI9341_RED);
+  
+  //BMS19 and Startscreen FSB3
+  writeText(30,110,1,"Keine Betrachtung der ISO 26262",ILI9341_WHITE);  
+  writeText(188,222,2,"FSB3 - 2021",ILI9341_WHITE);
+  //END Display FSB3
+  
   drawRect(100, 190, 50, 50, ILI9341_WHITE);
   display.fillRect(150, 140, 50, 50, ILI9341_WHITE);
 
@@ -154,7 +160,7 @@ void setupBSW()
   OCR0A = 0xA0;
   TIMSK0 |= _BV(OCIE0A);  
 
-  delay(5000); // 5 Seconds minimum
+  delay(5000); // 5 Seconds minimum - Statscreen wird angezeigt
 
   // wait for VCU to charge up enough if freshly startet
   while (min4(getCellVoltage(1),getCellVoltage(2),getCellVoltage(3),getCellVoltage(4)) < 2.7)
@@ -168,11 +174,11 @@ void setupBSW()
     drawRect(302,0,18,240,rgb565(150,150,150));   
     for (i = 1; i <= 4; i++)
     {
-      n = max(min(((2.7-getCellVoltage(i))/2.7),1),0)*238; 
+      n = max(min(((2.7-getCellVoltage(i))/2.7),1),0)*238; //Abweichung 
       fillRect(299+i*4,1,4,n,ILI9341_BLACK);   
       fillRect(299+i*4,n,4,239-n,colCell(i));
     }
-    // charge up low cells
+    
     if (getCellVoltage(1) < 2.7) {pinMode(pinCell1, OUTPUT); digitalWrite(pinCell1, HIGH);}
     if (getCellVoltage(2) < 2.7) {pinMode(pinCell2, OUTPUT); digitalWrite(pinCell2, HIGH);}
     if (getCellVoltage(3) < 2.7) {pinMode(pinCell3, OUTPUT); digitalWrite(pinCell3, HIGH);}
@@ -225,8 +231,8 @@ ISR(TIMER0_COMPA_vect) // called once per ms
     pinMode(pinCell3, INPUT);
     pinMode(pinCell4, INPUT);
   }
-  if (pwmActive)
-    bitSet(regWarnings, 3); 
+  if (pwmActive) 
+    bitSet(regWarnings, 3);
   else
     bitClear(regWarnings, 3); 
   analogWrite(pinWarnings, regWarnings*14+20);  // save a function call
@@ -382,10 +388,12 @@ void sendDriveMode()
   if (BDUactive) value = driveMode; else value = 0;
   analogWrite(pinDriveMode, value*14+20); 
 } 
+
 void sendWarnings()
 {
   analogWrite(pinWarnings, regWarnings*14+20); 
 } 
+
 void sendProduceErrors()
 {
   analogWrite(pinProdErrors, regErrors*14+20); 
