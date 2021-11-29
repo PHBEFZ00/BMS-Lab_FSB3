@@ -22,7 +22,6 @@ void Temperature(long firsttime, bool &b_state_ot)
 
   if ((millis() - currenttime_t) >= INTERVAL200)    // 200ms
   {
-    b_state_ot = false;                             // set bool false
     
     //Serial.print(millis() - currenttime_t);
     //Serial.print("ms");
