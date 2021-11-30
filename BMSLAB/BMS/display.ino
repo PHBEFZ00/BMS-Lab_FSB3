@@ -13,7 +13,7 @@ void showMeasurementValues()
   {
     writeText(i*68-52, 4, 1, "Cell "+String(i), ILI9341_WHITE);                       // new name and font size
     writeText(i*68-58, 22, 1, strLen(String(getCellVoltage(i),3),6)+"V", colCell(i)); // new font size, position and unit
-    writeText(i*68-52, 40, 1, strLen(String(getCellTemp(i),1),5)+"C", colTemp(i));    // new font size, position and unit
+    writeText(i*68-58, 40, 1, strLen(String(getCellTemp(i),2),6)+"C", colTemp(i));    // new font size, position and unit
   }
   // write pack current on screen
   writeText(280,  4, 1, "I/A",ILI9341_LIGHTGREY);
