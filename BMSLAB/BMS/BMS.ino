@@ -36,6 +36,9 @@ float difference_mean_cells_400 [4];  // third (actual) measurement
 float standard_deviation[3];          // standard deviation = { <first measurement> , <second measurement> , < third (actual) measurement> }  
 float sum_sd;                         // for calculating standard deviation
 int counter = 1;                      // counter for Cell-Balancing "200ms"
+float cell_voltage [4];               // array storage for cell voltage / global for testing
+bool Balancing;                       // for testing: true = Balancing ON, false = Balancing OFF
+float voltage_limits [2];             // for testing: voltage limits; structure: {min, max}
 
 void setup() 
 {

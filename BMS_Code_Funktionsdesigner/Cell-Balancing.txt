@@ -2,7 +2,6 @@
 void Cell_Balancing(long firsttime)
 {
   float arithmetic_mean;  // arithmetic mean
-  float cell_voltage [4]; // array storage for cell voltage
   int cell;               // variable-count for cells
   bool setter;            // bool for reseting setBalancing()
   float sum_am = 0;       // for calculating arithmetic mean
@@ -36,6 +35,10 @@ void Cell_Balancing(long firsttime)
     {
       difference_mean_cells_000[cell] = abs( arithmetic_mean - cell_voltage[cell] ); 
     }
+
+    voltage_limits [0] = arithmetic_mean - standard_deviation [0];      // for testing: lower limit (first measurement)
+    voltage_limits [1] = arithmetic_mean + standard_deviation [0];      // for testing: upper limit (first measurement)
+
   }
 
   if (( millis() - currenttime_cb200 ) >= INTERVAL200 ) // 200ms
@@ -73,6 +76,10 @@ void Cell_Balancing(long firsttime)
       {
         difference_mean_cells_200[cell] = abs( arithmetic_mean - cell_voltage[cell] );
       } // end for
+
+      voltage_limits [0] = arithmetic_mean - standard_deviation [1];      // for testing: lower limit (second measurement)
+      voltage_limits [1] = arithmetic_mean + standard_deviation [1];      // for testing: upper limit (second measurement)
+
     } // end if
       
     currenttime_cb200 = millis();                                     // reinitialize timer
@@ -91,6 +98,9 @@ void Cell_Balancing(long firsttime)
     {
       difference_mean_cells_400[cell] = abs( arithmetic_mean - cell_voltage[cell] );
     } // end for
+
+    voltage_limits [0] = arithmetic_mean - standard_deviation [2];      // for testing: lower limit (third measurement)
+    voltage_limits [1] = arithmetic_mean + standard_deviation [2];      // for testing: upper limit (third measurement)
     
     for ( cell=0 ; cell < 4 ; cell++ )
     {
@@ -101,6 +111,7 @@ void Cell_Balancing(long firsttime)
           if ( difference_mean_cells_000[cell] > standard_deviation[0] ) // check first measurement
           {
             setBalancing(cell+1); // activate Cell-Balancing
+            Balancing = true;     // for testing: Balancing ON
 
             //Serial.print(currenttime_cb400);
             //Serial.print("    ");
@@ -124,6 +135,7 @@ void Cell_Balancing(long firsttime)
      if (setter)                                                          // if in correct range
      {
       setBalancing(0);                                                    // deactivate Cell-Balancing
+      Balancing = false;                                                  // for testing: Balancing OFF
       
       //Serial.println("Cell-Balancing OFF");
      } // end if
