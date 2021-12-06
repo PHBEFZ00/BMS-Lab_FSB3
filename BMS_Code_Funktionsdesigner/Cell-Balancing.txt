@@ -7,6 +7,7 @@ void Cell_Balancing(long firsttime)
   float sum_am = 0;                                                   // for calculating arithmetic mean
   int balancing_cell;                                                 // storage for cell number
   float max_cell_voltage = 0;                                         // auxilary variable for determine max. cell voltage
+  int cell_num;                                                       // second variable-count for cells
 
   if ( b[4] == 0 )                  // setup
   { 
