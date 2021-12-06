@@ -1,1 +1,31 @@
+//Test BMS21.3
+bool counter_BMS21_3 = false;
+void Test_CB_3(bool &balancing_active)
+{
+  unsigned long time_start;
+  unsigned long duration;
 
+  if ( balancing_active == true && counter_BMS21_3 == false)
+  {
+    time_start = millis();
+    counter_BMS21_3 = true;
+  }
+
+  if ( balancing_active == false && counter_BMS21_3 == true )
+  {
+    duration = millis() - time_start;
+    counter_BMS21_3 = false;
+    Serial.println("BMS21.3");
+  }
+
+  if ( duration < 400 )
+  {
+    //Serial.println("BMS21.3");
+    Serial.print("Attention! Balancing duration too short: ");
+    Serial.print(duration);
+    Serial.println("ms");
+    Serial.println();
+    Serial.println();
+    failure++;
+  }
+}
