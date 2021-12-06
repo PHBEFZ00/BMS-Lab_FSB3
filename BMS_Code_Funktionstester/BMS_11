@@ -1,0 +1,26 @@
+//globale Variablen
+int failure = 0;
+
+
+//Programm
+void timetesting_v()
+{
+  if ((millis()-currenttime_v) >=200 && millis() - currenttime_v <=6000) 
+  {
+    if(abs(millis()-(currenttime_v+200))>= 1){
+      Serial.println("time cycle is incorrect");
+      Serial.print(abs(millis()-(currenttime_v+200)));
+      Serial.println("ms");
+      Serial.println();
+      failure++;  
+    }
+  
+     if(millis()>= 900000){                                                         
+       
+       Serial.print("15.min test cycle ended, ERRORS: ");
+       Serial.println(failure);
+       Serial.println();
+       delay(1000000);
+    }
+  }
+}
