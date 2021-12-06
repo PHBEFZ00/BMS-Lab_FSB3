@@ -1,0 +1,71 @@
+//Testvariablen BMS-18
+long timer_bc;
+
+
+//Anpassung BSW
+bool feedback_BDU()                                                                       
+{
+  return BDUactive;                   
+}
+
+
+//Anpassung parse
+ case 'W':
+        if (value == 0)
+        {
+          b_state_overvoltage = 0;
+          b_state_undervoltage = 0;
+          b_state_overtemp = 0;
+          b_state_overcurrent = 0;
+          setBDU_Activation(true);
+          timer_bc=0;                                 //BMS-18 time_contactor
+          Serial.println("all warnings deactivated"); 
+          Serial.println();
+        }
+        else if (value == 1)
+        {
+          b_state_overvoltage = 1;
+          Serial.println();
+          Serial.println("Warning Overvoltage activated");
+        }
+        
+        else if (value == 2)
+        {
+          b_state_undervoltage = 1;
+          Serial.println();
+          Serial.println("Warning Undervoltage activated");
+        }
+        
+        else if (value == 3)
+        {
+          b_state_overtemp = 1;
+          Serial.println();
+          Serial.println("Warning Overtemperature activated");
+        }
+        
+        else if (value == 4)
+        {
+          b_state_overcurrent = 1;
+          Serial.println();
+          Serial.println("Warning Overcurrent activated");
+        }
+
+
+// Testing BMS-18  
+void time_contactor(bool ov, bool uv, bool ot, bool cu)
+{
+  if ((ov || uv || ot || cu)) 
+  {
+    if (timer_bc==0)
+    timer_bc = millis();
+  }
+ 
+  if (feedback_BDU() == false && (millis()-timer_bc) >=800)
+  {
+    Serial.print("Battery Contactor opened after: ");
+    Serial.print(millis()-timer_bc-800);
+    Serial.println(" ms");
+    delay(10000);
+  }
+} // end time_contactor
+
