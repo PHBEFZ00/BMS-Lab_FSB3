@@ -1,10 +1,12 @@
 // BMS21
 void Cell_Balancing(long firsttime)
 {
-  float arithmetic_mean;  // arithmetic mean
-  int cell;               // variable-count for cells
-  bool setter;            // bool for reseting setBalancing()
-  float sum_am = 0;       // for calculating arithmetic mean
+  float arithmetic_mean;                                              // arithmetic mean
+  int cell;                                                           // variable-count for cells
+  bool setter;                                                        // bool for reseting setBalancing()
+  float sum_am = 0;                                                   // for calculating arithmetic mean
+  int balancing_cell;                                                 // storage for cell number
+  float max_cell_voltage = 0;                                         // auxilary variable for determine max. cell voltage
 
   if ( b[4] == 0 )                  // setup
   { 
@@ -110,13 +112,22 @@ void Cell_Balancing(long firsttime)
         {
           if ( difference_mean_cells_000[cell] > standard_deviation[0] ) // check first measurement
           {
-            setBalancing(cell+1); // activate Cell-Balancing
+	    for ( cell_num = 0 ; cell_num < 4 ; cell_num++ )             // algorithm for getting cell number of cell with max. voltage
+            {
+              if ( max_cell_voltage < cell_voltage[cell_num] )
+              {
+                max_cell_voltage = cell_voltage[cell_num];
+                balancing_cell = cell_num+1;
+              } // end if
+            } // end for
+
+            setBalancing(balancing_cell); // activate Cell-Balancing
             Balancing = true;     // for testing: Balancing ON
 
             //Serial.print(currenttime_cb400);
             //Serial.print("    ");
             //Serial.print(millis() - currenttime_cb400);
-            //Serial.print("     Cell-Balancing, cell no. "); Serial.println(cell+1);
+            //Serial.print("     Cell-Balancing, cell no. "); Serial.println(balancing_cell);
           } // end if
         } // end if
       } // end if
