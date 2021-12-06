@@ -1,0 +1,37 @@
+//globale Variablen
+float volt_VCU[4] = {0,0,0,0};
+int failure = 0;
+
+
+
+//Programm
+void overvoltage_VCU(){
+
+    for (int k=1; k<=4; k++){               // cell 1 to 4
+        volt_VCU[k-1] = getCellVoltage(k);    // get cell voltage
+        if (volt_VCU[k-1] > 4.2){
+          if(b_state_overvoltage == 1){
+            Serial.println("set warning successfull"); 
+          }
+          else{
+	    Serial.println();
+            Serial.println("warning ignored");
+	    Serial.print(" cell no ");
+            Serial.print(k);
+            Serial.print(" voltage: ");
+            Serial.println(volt_VCU[k-1]);
+            failure++; 
+          }
+            
+        }
+          
+    }
+    if(millis()>= 900000){                                                         
+       
+       Serial.print("15.min test cycle ended, ERRORS: ");
+       Serial.println(failure);
+       Serial.println();
+       delay(100000);
+    }
+   
+}
