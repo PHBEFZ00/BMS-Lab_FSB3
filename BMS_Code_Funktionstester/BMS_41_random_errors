@@ -1,0 +1,18 @@
+//globalevariablen
+#define INTERVAL1000 1000       // set interval 1000ms
+currenttime_d = millis();
+
+// 1/1000ms Takt
+void Takt() {
+
+   if ((millis() - currenttime_d) >= INTERVAL1000 && (millis() - currenttime_d) < 2000)    
+   Serial.println("Aktualisierungszeit >= 1000ms und somit: i.O.");
+   
+   Serial.println(millis() - currenttime_d);
+   Serial.print("ms");
+   Serial.print(" Takt Display Ausgaben");
+   
+//   else 
+//   {Serial.println("Aktualisierungszeit < 1000ms und somit: n.i.O.");
+//   Serial.print(millis() - currenttime_d);}
+}
