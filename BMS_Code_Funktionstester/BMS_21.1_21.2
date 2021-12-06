@@ -1,0 +1,61 @@
+//Test BMS21.1, BMS21.2
+long intervall200[2];
+int k = 0;
+bool h = false;
+void Test_CB_1(long time_counter)
+{
+  if ( h == false )
+  {
+    intervall200[0] = time_counter;
+    h = true;
+  }
+
+  if ( intervall200[k] != time_counter )
+  {
+    k++;
+    intervall200[k] = time_counter;
+    long duration = intervall200[k] - intervall200[k - 1];
+    k = 0;
+    intervall200[k] = intervall200[k + 1];
+
+    Serial.println("BMS21.1 & BMS21.2");
+    Serial.print("Time: ");
+    Serial.print(millis());
+    Serial.println("ms");
+
+    Serial.print("voltage limits: ");
+    Serial.print(voltage_limits[0]);
+    Serial.print("V ... ");
+    Serial.print(voltage_limits[1]);
+    Serial.println("V");
+
+    for ( int cell = 0 ; cell < 4 ; cell++ )
+    {
+      Serial.print("U");
+      Serial.print(cell + 1);
+      Serial.print(" = ");
+      Serial.print(cell_voltage[cell]);
+      Serial.print("V");
+
+      if ( cell_voltage[cell] >= voltage_limits[0] && cell_voltage[cell] <= voltage_limits[1] )
+        Serial.println(" i.O. ");
+
+      else
+      {
+        Serial.println(" n.i.O. ");
+      }
+    }
+
+    if ( duration > 200 )
+    {
+      Serial.print("Attention! Duration n.i.O.: ");
+      Serial.print(duration);
+      Serial.println("ms");
+      failure++;
+    }
+
+    if ( Balancing = true )
+      Serial.println("Balancing active.");
+    Serial.println();
+  }
+}
