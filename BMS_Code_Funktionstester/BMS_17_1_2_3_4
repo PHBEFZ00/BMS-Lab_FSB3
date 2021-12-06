@@ -1,1 +1,92 @@
+//Testvariable BMS-17.1-.4
+long counter_s=0;
+
+
+//Anpassung BSW
+bool feedback_BDU()                                                                       
+{
+  return BDUactive;                   
+}
+
+
+//Anpassung parse
+ case 'W':
+        if (value == 0)
+        {
+          b_state_overvoltage = 0;
+          b_state_undervoltage = 0;
+          b_state_overtemp = 0;
+          b_state_overcurrent = 0;
+          setBDU_Activation(true);
+          timer_bc=0;                                 //BMS-18 time_contactor
+          Serial.println("all warnings deactivated"); 
+          Serial.println();
+        }
+        else if (value == 1)
+        {
+          b_state_overvoltage = 1;
+          Serial.println();
+          Serial.println("Warning Overvoltage activated");
+        }
+        
+        else if (value == 2)
+        {
+          b_state_undervoltage = 1;
+          Serial.println();
+          Serial.println("Warning Undervoltage activated");
+        }
+        
+        else if (value == 3)
+        {
+          b_state_overtemp = 1;
+          Serial.println();
+          Serial.println("Warning Overtemperature activated");
+        }
+        
+        else if (value == 4)
+        {
+          b_state_overcurrent = 1;
+          Serial.println();
+          Serial.println("Warning Overcurrent activated");
+        }
+
+
+// Testing BMS17.1 - BMS17.4:
+void Shutdowntesting(bool ov, bool uv, bool ot, bool cu)      //input warning status
+{
+  if (ov || uv || ot || cu ) //active warning(s)
+  {
+    if ((millis() - currenttime_s) < 800) //current time shutdown since warning activation   
+    {
+      //Serial.println("----Timer on----");
+      //Serial.print(millis() - currenttime_s); //display currenttime_s since warning activation
+      //Serial.println("ms  time since warning activated");
+    }
+    
+    else if ((millis() - currenttime_s) >= 800 && (millis() - currenttime_s) <= 805) 
+    {
+      if (feedback_BDU() == false)
+      {
+        Serial.print(millis() - currenttime_s);
+        Serial.println("ms  time stamp Battery Contactor opened");
+        delay(6);
+        Serial.println();
+      }
+    }   
+  }
+
+  else
+  {
+    if (counter_s >=50000)
+    {
+      Serial.println("no warning activated");
+      counter_s=0;
+    }
+    else
+    {
+      counter_s++;
+    }
+  }
+
+} //end void Shutdowntesting
 
