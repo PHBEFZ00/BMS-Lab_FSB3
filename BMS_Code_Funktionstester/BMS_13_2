@@ -1,0 +1,86 @@
+//global variables
+float volt_v[4] = {0,0,0,0}; 
+float volt_n[4] = {0,0,0,0}; 
+int failure = 0;
+int voltage_timer = 0;
+int under_v = 0;
+long timer = 0;
+int again_under_v = 1;
+long test_timer = 0;
+int drive_mode = 0;
+
+
+//program
+void undervoltage_time(){
+
+   if(b_state_undervoltage == 1 && under_v == 0){                                   // detect overvoltage and set over_v to 1, so the timer get started
+    Serial.println("undervoltage active!"); 
+    under_v = 1;
+  }
+  
+   if(b_state_undervoltage == 0 && under_v == 1 && voltage_timer == 0){             // recognizes the switch between overvoltage on to off
+    timer = millis();                                                               // starts the timer
+    Serial.println("undervoltage over!"); 
+      for (int k=1; k<=4; k++){                                                     // get cell voltage an write it in the 1st array
+        volt_v[k-1] = getCellVoltage(k);       
+      }
+    voltage_timer = 1;                                                              // set voltage_timer to 0, so the timer doesn't get started in every loop
+  }
+
+  
+  if(b_state_undervoltage == 0 && under_v == 1 && voltage_timer == 1  ){ 
+   again_under_v = 1;                                                               // set again_over_v to 1 so the programm can detect an overvoltge during the 400ms 
+       if((millis() - timer) <= 370){                                               // 370ms to get the timing right
+         for (int k=1; k<=4; k++){                
+            volt_n[k-1] = getCellVoltage(k);                                        // get cell voltage an write it in the 2nd array
+             if((millis() - timer) <= 370){                                         // 380ms to get the timing right
+               if(volt_n[k-1] < volt_v[k-1]){                                       // compare the 2 cellvoltages with each other
+                Serial.print("irgnored undervoltage (BMS-13.2): ");                 // Serial Print if 1 cell ignored BMS-12.2
+                Serial.print(millis() - timer); 
+                Serial.println("ms");
+                Serial.print("Cell no. ");
+                Serial.println(k);
+                Serial.print("before: ");
+                Serial.print(volt_v[k-1]);
+                Serial.println("V");
+                Serial.print("after: ");
+                Serial.print(volt_n[k-1]);
+                Serial.println("V");
+                volt_v[k-1]=volt_n[k-1];                                          // write the cellvoltage(after) in the array cellvoltage(before) for the next cycle
+                failure++;                                                        // failure counter plus 1
+                //delay(10000);
+               }
+             else{
+              volt_v[k-1]=volt_n[k-1];                                            // write the cellvoltage(after) in the array cellvoltage(before) for the next cycle  
+            }
+          }
+        }
+      }
+
+   
+   if(millis() - timer > 400){                                                    // after 400ms without an overvoltage warning set over_v, voltage_timer and again_over_v to 0 so the timer gets a reset
+    Serial.println("400ms over");
+    Serial.println();
+    under_v = 0;                                                                   
+    voltage_timer = 0;
+    again_under_v = 0;
+    }
+
+}
+  if(millis() - timer <= 400 && b_state_undervoltage == 1 &&  again_under_v == 1){  // if an overvoltage warning is send within the 400ms set over_v, voltage_timer and again_over_v to 0 so the timer gets a reset
+      Serial.println("undervoltage during the 400ms");
+      Serial.println();
+      under_v = 0;
+      voltage_timer = 0;
+      again_under_v = 0;
+   }
+   
+      
+    if(millis()- test_timer >= 900000){                                             // Testtime in ms + evaluation of the failure counter
+       
+       Serial.print("15.min test cycle ended, ERRORS: ");
+       Serial.println(failure);
+       Serial.println();
+       delay(100000);
+    }
+}
