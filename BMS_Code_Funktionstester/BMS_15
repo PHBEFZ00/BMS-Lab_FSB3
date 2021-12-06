@@ -1,0 +1,35 @@
+//globale variables
+int failure = 0; 
+float temp_VCU[4] = {0,0,0,0};
+
+//Programm
+void overtemp_VCU(){
+
+    for (int k=1; k<=4; k++){               // cell 1 to 4
+        temp_VCU[k-1] = getCellTemp(k);    // get cell voltage
+        if (temp_VCU[k-1] > 60){
+          if(b_state_overtemp == 1){
+            Serial.println("set warning successfull"); 
+          }
+          else{
+            Serial.println();
+            Serial.println("warning ignored");
+            Serial.print(" cell no ");
+            Serial.print(k);
+            Serial.print(" temperature: ");
+            Serial.print(temp_VCU[k-1]);
+            Serial.println("°C");
+            failure++; 
+          }
+            
+        }
+          
+    }
+    if(millis() >= 900000){                                                         // Testtime in ms + evaluation of the failure counter
+       
+       Serial.print("15.min test cycle ended, ERRORS: ");
+       Serial.println(failure);
+       Serial.println();
+       delay(100000);
+    }
+}
