@@ -1,0 +1,53 @@
+//globale Variablen 
+float volt_v[4] = {0,0,0,0}; 
+float volt_n[4] = {0,0,0,0}; 
+int failure = 0;
+
+//Programm nach Volatge 
+void overvoltage_test_v()
+{
+  if(b_state_overvoltage == 1){
+    for (int k=1; k<=4; k++){                // cell 1 to 4
+      volt_v[k-1] = getCellVoltage(k);      // get cell voltage
+       //Serial.println(volt_n[k-1]);
+    }
+  }
+}
+
+//Programm vor Voltage 
+void overvoltage_test_n()
+{
+  if(b_state_overvoltage == 1){
+    for (int k=1; k<=4; k++){               // cell 1 to 4
+        volt_n[k-1] = getCellVoltage(k);  // get cell voltage
+        //Serial.println(volt_n[k-1]);
+    }
+    for (int i=1; i<=4; i++){
+        if(volt_v[i-1] < volt_n[i-1] && volt_v[i-1] >= 4.2){
+          Serial.println();
+          Serial.println("ERROR Voltage got increased");
+          Serial.print("Zelle ");
+          Serial.println(i);
+          Serial.print("before: ");
+          Serial.print(volt_v[i-1]);
+          Serial.println(" V");
+          Serial.print("after: ");
+          Serial.print(volt_n[i-1]);
+          Serial.println(" V");
+          Serial.print("delta: ");
+          Serial.print(abs(volt_v[i-1] - volt_n[i-1]));
+          Serial.println(" V");
+          Serial.println();
+          failure++;
+        }
+    }
+  }
+  if(millis() >= 900000){                                                         
+       
+       Serial.print("15.min test cycle ended, ERRORS: ");
+       Serial.println(failure);
+       Serial.println();
+       delay(100000);
+    }
+}
+
