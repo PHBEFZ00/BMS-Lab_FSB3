@@ -1,0 +1,35 @@
+//Testvariablen BMS-16
+int failure=0;
+long timestamp;
+
+
+//BMS-16 Testing
+void timetesting_c()
+{
+  if ((millis()-currenttime_c) >= 200 && (millis() - currenttime_c) <= 6000) //&-Bedingung, da millis anfangs auf über 6000ms wegen Startverhalten
+  {
+    timestamp=millis();
+    Serial.print(millis() - currenttime_c);
+    Serial.print("ms");
+    Serial.println("  tact current measurement");
+    Serial.print(abs(millis()-(currenttime_c+200)));
+    Serial.println(" ms deviation");
+    
+    if(abs(timestamp - (currenttime_c+200)) >= 1)
+    {
+      Serial.println("time deviation detected");
+      failure++;
+    }
+    
+    Serial.print(getPackCurrent());
+    Serial.println("A  battery current");
+    Serial.println();
+
+    if(millis() >= 900000) //test time: 15minutes
+    {
+      Serial.print("test completed, test time: 15 minutes, errors:");
+      Serial.println(failure);
+      delay(60000);
+    }
+  }
+}
