@@ -136,7 +136,7 @@ void Cell_Balancing(long firsttime)
     if (balancing_on) // set Balancing                                                   
     {
       setBalancing(balancing_cell); // activate Cell-Balancing
-      Balancing = true;     // for testing: Balancing ON
+      Balancing = true;             // for testing: Balancing ON
       
       //Serial.print(currenttime_cb400);
       //Serial.print("    ");
@@ -154,7 +154,7 @@ void Cell_Balancing(long firsttime)
       } // end if
     } // end for
 
-    if (setter)                                                          // if in correct range
+    if (setter)                                                           // if in correct range
     {
       setBalancing(0);                                                    // deactivate Cell-Balancing
       Balancing = false;                                                  // for testing: Balancing OFF
