@@ -16,12 +16,15 @@ void Test_CB_3(bool &balancing_active)
     duration = millis() - time_start;
     counter_BMS21_3 = false;
     Serial.println("BMS21.3");
+    Serial.print("Balancing duration i.O.: ");
+    Serial.print(duration);
   }
 
   if ( duration < 400 )
   {
     //Serial.println("BMS21.3");
-    Serial.print("Attention! Balancing duration too short: ");
+    Serial.println("BMS21.3");
+    Serial.print("Attention! Balancing duration n.i.O.: ");
     Serial.print(duration);
     Serial.println("ms");
     Serial.println();
