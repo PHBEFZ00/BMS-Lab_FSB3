@@ -48,11 +48,11 @@ void setup()
 
 void loop() 
 { 
-  setBDU_Activation(true);   // schaltet BDU ein
+  setBDU_Activation(true);   // turns on BDU
   setDriveMode(1);           // 1-Cycle Test 2-Slow Driver 3-Fast Driver 4-Power Mode
-  receiveAndParseCommands();   // Empfängt Befehle über den Serial Monitor und führt diese aus
+  receiveAndParseCommands();   // receives commands via serial monitor and executes them
 
-  //----------------------------------------------------------------------------------------------------------------------------
+  // call of the self-developed functions
   Cell_Balancing(prev_time);
   Display(prev_time);
   Shutdown(prev_time, b_state_overvoltage, b_state_undervoltage, b_state_overtemp, b_state_overcurrent);
@@ -60,6 +60,6 @@ void loop()
   Temperature(prev_time, b_state_overtemp);
   Voltage(prev_time, b_state_overvoltage, b_state_undervoltage);
   
- //----------------------------------------------------------------------------------------------------------------------------
+ //
 
 }
