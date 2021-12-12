@@ -55,10 +55,11 @@ void loop()
   //----------------------------------------------------------------------------------------------------------------------------
   Cell_Balancing(prev_time);
   Display(prev_time);
+  Shutdown(prev_time, b_state_overvoltage, b_state_undervoltage, b_state_overtemp, b_state_overcurrent);
   Current(prev_time, b_state_overcurrent);  
   Temperature(prev_time, b_state_overtemp);
   Voltage(prev_time, b_state_overvoltage, b_state_undervoltage);
-  Shutdown(prev_time, b_state_overvoltage, b_state_undervoltage, b_state_overtemp, b_state_overcurrent);
+  
  //----------------------------------------------------------------------------------------------------------------------------
 
 }
