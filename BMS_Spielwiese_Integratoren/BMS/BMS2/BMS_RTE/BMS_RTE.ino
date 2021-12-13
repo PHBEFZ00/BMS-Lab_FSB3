@@ -49,6 +49,7 @@ void setup()
 }
 
 void loop() 
+<<<<<<< HEAD
 { // Abtestung ob ein Kritischer Fehler (Shutdown) vorliegt
   if(BDU_On)                 //
   setBDU_Activation(true);   // schaltet BDU ein
@@ -57,8 +58,14 @@ void loop()
   //Abtestung Ende
   setDriveMode(1);             // 1-Cycle Test 2-Slow Driver 3-Fast Driver 4-Power Mode
   receiveAndParseCommands();   // Empfängt Befehle über den Serial Monitor und führt diese aus
+=======
+{ 
+  setBDU_Activation(true);   // turns on BDU
+  setDriveMode(1);           // 1-Cycle Test 2-Slow Driver 3-Fast Driver 4-Power Mode
+  receiveAndParseCommands();   // receives commands via serial monitor and executes them
+>>>>>>> 3b2aadc14f01012511f5405d17b2ef1b2d0e55fc
 
-  //----------------------------------------------------------------------------------------------------------------------------
+  // call of the self-developed functions
   Cell_Balancing(prev_time);
   Display(prev_time);
   Shutdown(prev_time, b_state_overvoltage, b_state_undervoltage, b_state_overtemp, b_state_overcurrent);
@@ -66,6 +73,6 @@ void loop()
   Temperature(prev_time, b_state_overtemp);
   Voltage(prev_time, b_state_overvoltage, b_state_undervoltage);
   
- //----------------------------------------------------------------------------------------------------------------------------
+ //
 
 }
