@@ -1,4 +1,5 @@
-
+// information display layer
+// self developed display function
 // BMS41
 void Display(long firsttime)
 {
@@ -22,4 +23,4 @@ void Display(long firsttime)
   } // end if
 
 } // end void Display
-//---------------------------------------------------------------------------------------------------------------------
+

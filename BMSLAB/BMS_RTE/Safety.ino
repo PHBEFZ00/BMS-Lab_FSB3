@@ -1,3 +1,5 @@
+// Safety Layer
+// consiting cell-voltage, cell-current and cell-temperature monitoring , set warnings and operate shutdown
 // BMS16
 void Current(long firsttime, bool &b_state_iBat)
 {
@@ -27,7 +29,7 @@ void Current(long firsttime, bool &b_state_iBat)
     } // end if
   } // end if
 } // end void Current
-//__________________________________________________________________________________________________________________
+//
 // BMS17.1 + BMS17.2 + BMS17.3 + BMS18
 void Shutdown(long firsttime, bool b_state_ov, bool b_state_uv, bool b_state_ot, bool b_state_cu)
 {
@@ -41,7 +43,7 @@ void Shutdown(long firsttime, bool b_state_ov, bool b_state_uv, bool b_state_ot,
 
     if (millis() - currenttime_s >= INTERVAL800 && currenttime_s != 0)      // 800ms and timer activated
     {
-      setBDU_Activation(false);                                             // Shutdown BDU - BDU OFF
+      BDU_On = 0;                                            // Shutdown BDU - BDU OFF
       
       //Serial.print(currenttime_s);
       //Serial.print("    ");
@@ -53,10 +55,11 @@ void Shutdown(long firsttime, bool b_state_ov, bool b_state_uv, bool b_state_ot,
 
   if (! b_state_ov && ! b_state_uv && ! b_state_ot && ! b_state_cu)         // no warning active
   {
-    currenttime_s = 0;                                                      // reset timer to be ready to jump in
+    currenttime_s = 0;  // reset timer to be ready to jump in
+    BDU_On = 1;
   } // end if
 } // end void Shutdown
-//________________________________________________________________________________________________________
+//
 // BMS14 + BMS15 + BMS15.1 + BMS15.2
 void Temperature(long firsttime, bool &b_state_ot)
 {
@@ -109,7 +112,7 @@ void Temperature(long firsttime, bool &b_state_ot)
     } // end for
   } // end if
 } // end void Temperature
-//_______________________________________________________________________________________________
+//
 // BMS11 + BMS12 + BMS12.1 + BMS12.2 + BMS13 + BMS13.1 + BMS13.2
 void Voltage(long firsttime, bool &b_state_ov, bool &b_state_uv)
 {

@@ -13,6 +13,7 @@ extern volatile uint32_t pwmDuration;
 
 long prev_time;                 // previous Time
 
+bool BDU_On;                    // bool state Shutdown
 bool b_state_overvoltage = 0;   // bool state WarningOverVoltage FALSE
 bool b_state_undervoltage = 0;  // bool state WarningUnderVoltage FALSE
 bool b_state_overtemp = 0;      // bool state WarningOverTemp FALSE
@@ -44,21 +45,30 @@ void setup()
 {
   setupBSW();
   prev_time = millis();       // initialize millis-Timer
+  
 }
 
 void loop() 
 { 
-  setBDU_Activation(true);   // schaltet BDU ein
-  setDriveMode(1);           // 1-Cycle Test 2-Slow Driver 3-Fast Driver 4-Power Mode
-  receiveAndParseCommands();   // Empfängt Befehle über den Serial Monitor und führt diese aus
+  // testing for safety-critical faults 
+  if(BDU_On)                 
+  setBDU_Activation(true);     // turns on BDU
+  if(! BDU_On)
+  setBDU_Activation(false);    
+  // end testing
+  
+  setDriveMode(1);             // 1-Cycle Test 2-Slow Driver 3-Fast Driver 4-Power Mode
+  receiveAndParseCommands();   // receives commands via serial monitor and executes them
 
-  //----------------------------------------------------------------------------------------------------------------------------
+
+  // call of the self-developed functions
   Cell_Balancing(prev_time);
   Display(prev_time);
-  Current(prev_time, b_state_overcurrent);
-  Shutdown(prev_time,b_state_undervoltage, b_state_undervoltage, b_state_overtemp, b_state_overcurrent);
+  Shutdown(prev_time, b_state_overvoltage, b_state_undervoltage, b_state_overtemp, b_state_overcurrent);
+  Current(prev_time, b_state_overcurrent);  
   Temperature(prev_time, b_state_overtemp);
-  Voltage(prev_time, b_state_overvoltage,b_state_undervoltage );
- //----------------------------------------------------------------------------------------------------------------------------
+  Voltage(prev_time, b_state_overvoltage, b_state_undervoltage);
+  
+ 
 
 }
