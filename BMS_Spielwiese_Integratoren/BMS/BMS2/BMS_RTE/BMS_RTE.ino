@@ -55,7 +55,7 @@ void loop()
   if(! BDU_On)
   setBDU_Activation(false);
   //Abtestung Ende
-  setDriveMode(1);           // 1-Cycle Test 2-Slow Driver 3-Fast Driver 4-Power Mode
+  setDriveMode(1);             // 1-Cycle Test 2-Slow Driver 3-Fast Driver 4-Power Mode
   receiveAndParseCommands();   // Empfängt Befehle über den Serial Monitor und führt diese aus
 
   //----------------------------------------------------------------------------------------------------------------------------
